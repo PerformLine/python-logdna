@@ -21,6 +21,7 @@ class LogDNAHandler(logging.Handler):
         self.level = options['level'] if 'level' in options else 'info'
         self.app = options['app'] if 'app' in options else ''
         self.env = options['env'] if 'env' in options else ''
+        self._meta = options['meta'] if 'meta' in options else {}
         self.setLevel(logging.DEBUG)
         self.exceptionFlag = False
 
@@ -141,6 +142,11 @@ class LogDNAHandler(logging.Handler):
                 opts['meta'] = {}
             for key in ['name', 'pathname', 'lineno']:
                 opts['meta'][key] = record[key]
+
+        # include custom metadata from the global logging config dict
+        if isinstance(self._meta, dict) and 'meta' in opts:
+            for k, v in self._meta.items():
+                opts['meta'][k] = v
 
         message = {
             'hostname': self.hostname,
